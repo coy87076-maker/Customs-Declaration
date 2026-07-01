@@ -1,1 +1,45 @@
-
+function doPost(e) {
+  var sheet = SpreadsheetApp.openById('')
+                            .getSheetByName('CustomsLog');
+  var d = e.parameter;
+ 
+  // Auto-create header row if sheet is empty
+  if (sheet.getLastRow() === 0) {
+    sheet.appendRow([
+      'Date', 'Ref Number', 'Type',
+      'Sender Name', 'Sender Address', 'Sender Country', 'Sender Contact',
+      'Receiver Name', 'Receiver Address', 'Receiver Country', 'Receiver Contact',
+      'Description', 'Weight (kg)', 'Length (cm)', 'Width (cm)', 'Height (cm)',
+      'Vol. Weight (kg)', 'Declared Value (USD)'
+    ]);
+  }
+ 
+  sheet.appendRow([
+    new Date(),
+    d.refNumber,
+    d.shipmentType,
+    d.senderName,
+    d.senderAddress,
+    d.senderCountry,
+    d.senderContact,
+    d.receiverName,
+    d.receiverAddress,
+    d.receiverCountry,
+    d.receiverContact,
+    d.description,
+    d.weight,
+    d.length,
+    d.width,
+    d.height,
+    d.volWeight,
+    d.declaredValue
+  ]);
+ 
+  return ContentService.createTextOutput('Success');
+}
+ 
+function doGet(e) {
+  return ContentService
+    .createTextOutput(JSON.stringify({ status: 'ok', message: 'Customs Declaration API is running.' }))
+    .setMimeType(ContentService.MimeType.JSON);
+}
