@@ -1,5 +1,5 @@
 // ── Apps script ───────────────────────
-const SCRIPT_URL = '';
+const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyjVtRWVw7p8nPRkC93aMLi7NudQ12Gq_cX77MvjZCCj6q0NFXmL6fPUAKRIQQiFm0JfQ/exec';
 
 // ── Generate reference number ─────────────────────────────────────────────
 function generateRef() {
