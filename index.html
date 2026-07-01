@@ -1,1 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Customs Declaration Form</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
 
+<div class="wrap">
+
+  <!-- Header -->
+  <div class="customs-header">
+    <div class="header-left">
+      <div class="header-icon">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/><line x1="12" y1="12" x2="12" y2="16"/><line x1="10" y1="14" x2="14" y2="14"/></svg>
+      </div>
+      <div>
+        <h1>Customs Declaration Form</h1>
+        <p>International Shipment — Import &amp; Export</p>
+      </div>
+    </div>
+    <div class="header-meta">
+      <div class="ref-badge" id="refNumber">REF-——</div>
+      <div class="header-date" id="headerDate"></div>
+    </div>
+  </div>
+
+  <!-- Shipment type toggle -->
+  <div class="card">
+    <div class="card-title">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#6b7280" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+      Shipment type
+    </div>
+    <div class="type-toggle">
+      <button class="toggle-btn active" id="btnImport" onclick="setType('Import')">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5"/><path d="m5 12 7 7 7-7"/></svg>
+        Import
+      </button>
+      <button class="toggle-btn" id="btnExport" onclick="setType('Export')">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14"/><path d="m19 12-7-7-7 7"/></svg>
+        Export
+      </button>
+    </div>
+    <input type="hidden" id="shipmentType" value="Import">
+  </div>
+
+  <form id="customsForm">
+
+    <!-- Sender -->
+    <div class="card">
+      <div class="card-title">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#6b7280" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+        Sender details
+      </div>
+      <div class="form-grid">
+        <div class="field full">
+          <label for="senderName">Full name / Company</label>
+          <input type="text" id="senderName" placeholder="e.g. Acme Corp" required>
+        </div>
+        <div class="field full">
+          <label for="senderAddress">Address</label>
+          <input type="text" id="senderAddress" placeholder="Street, City, Province/State" required>
+        </div>
+        <div class="field">
+          <label for="senderCountry">Country</label>
+          <input type="text" id="senderCountry" placeholder="e.g. Philippines" required>
+        </div>
+        <div class="field">
+          <label for="senderContact">Contact number</label>
+          <input type="text" id="senderContact" placeholder="e.g. +63 912 345 6789" required>
+        </div>
+      </div>
+    </div>
+
+    <!-- Receiver -->
+    <div class="card">
+      <div class="card-title">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#6b7280" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+        Receiver details
+      </div>
+      <div class="form-grid">
+        <div class="field full">
+          <label for="receiverName">Full name / Company</label>
+          <input type="text" id="receiverName" placeholder="e.g. Global Trade Ltd" required>
+        </div>
+        <div class="field full">
+          <label for="receiverAddress">Address</label>
+          <input type="text" id="receiverAddress" placeholder="Street, City, Province/State" required>
+        </div>
+        <div class="field">
+          <label for="receiverCountry">Country</label>
+          <input type="text" id="receiverCountry" placeholder="e.g. Japan" required>
+        </div>
+        <div class="field">
+          <label for="receiverContact">Contact number</label>
+          <input type="text" id="receiverContact" placeholder="e.g. +81 3 1234 5678" required>
+        </div>
+      </div>
+    </div>
+
+    <!-- Shipment details -->
+    <div class="card">
+      <div class="card-title">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#6b7280" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>
+        Shipment details
+      </div>
+      <div class="form-grid">
+        <div class="field full">
+          <label for="description">Package description</label>
+          <input type="text" id="description" placeholder="e.g. Electronic components, clothing, books" required>
+        </div>
+        <div class="field">
+          <label for="weight">Weight (kg)</label>
+          <input type="number" id="weight" min="0.01" step="0.01" placeholder="e.g. 5.50" required>
+        </div>
+        <div class="field">
+          <label for="declaredValue">Declared value (USD)</label>
+          <input type="number" id="declaredValue" min="0" step="0.01" placeholder="e.g. 250.00" required>
+        </div>
+        <div class="field">
+          <label for="length">Length (cm)</label>
+          <input type="number" id="length" min="1" placeholder="e.g. 40" required>
+        </div>
+        <div class="field">
+          <label for="width">Width (cm)</label>
+          <input type="number" id="width" min="1" placeholder="e.g. 30" required>
+        </div>
+        <div class="field">
+          <label for="height">Height (cm)</label>
+          <input type="number" id="height" min="1" placeholder="e.g. 20" required>
+        </div>
+        <div class="field">
+          <label>Volumetric weight (kg)</label>
+          <div class="computed-field" id="volWeight">—</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Submit -->
+    <button type="submit" class="btn-submit">Submit Declaration</button>
+    <div class="status-msg" id="statusMsg"></div>
+
+  </form>
+
+  <!-- Hidden sync form -->
+  <form id="sheetForm" style="display:none">
+    <input name="refNumber">
+    <input name="shipmentType">
+    <input name="senderName">
+    <input name="senderAddress">
+    <input name="senderCountry">
+    <input name="senderContact">
+    <input name="receiverName">
+    <input name="receiverAddress">
+    <input name="receiverCountry">
+    <input name="receiverContact">
+    <input name="description">
+    <input name="weight">
+    <input name="length">
+    <input name="width">
+    <input name="height">
+    <input name="volWeight">
+    <input name="declaredValue">
+  </form>
+
+  <!-- Result card -->
+  <div class="result-card" id="resultCard">
+    <div class="result-banner" id="resultBanner">
+      <div>
+        <div class="result-ref" id="resultRef"></div>
+        <h2 id="resultTitle"></h2>
+        <p id="resultSub"></p>
+      </div>
+      <div class="result-stamp">
+        <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.9)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+        <div style="font-size:11px;color:rgba(255,255,255,0.8);margin-top:2px;">DECLARED</div>
+      </div>
+    </div>
+
+    <div class="result-details">
+      <div class="detail-item"><div class="dl">Type</div><div class="dv" id="rType">—</div></div>
+      <div class="detail-item"><div class="dl">Weight</div><div class="dv" id="rWeight">—</div></div>
+      <div class="detail-item"><div class="dl">Dimensions</div><div class="dv" id="rDims">—</div></div>
+      <div class="detail-item"><div class="dl">Vol. weight</div><div class="dv" id="rVol">—</div></div>
+      <div class="detail-item"><div class="dl">Declared value</div><div class="dv" id="rValue">—</div></div>
+    </div>
+
+    <div class="result-parties">
+      <div class="party-block">
+        <div class="party-label">From</div>
+        <div class="party-name" id="rSenderName">—</div>
+        <div class="party-info" id="rSenderAddr">—</div>
+        <div class="party-info" id="rSenderCountry">—</div>
+      </div>
+      <div class="party-arrow">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+      </div>
+      <div class="party-block">
+        <div class="party-label">To</div>
+        <div class="party-name" id="rReceiverName">—</div>
+        <div class="party-info" id="rReceiverAddr">—</div>
+        <div class="party-info" id="rReceiverCountry">—</div>
+      </div>
+    </div>
+
+    <div class="result-footer">
+      <button class="btn-new" onclick="resetForm()">Submit another declaration</button>
+    </div>
+  </div>
+
+</div>
+
+<script src="script.js"></script>
+</body>
+</html>
