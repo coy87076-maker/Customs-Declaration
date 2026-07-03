@@ -1,0 +1,154 @@
+// ── Apps script ───────────────────────
+const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyjVtRWVw7p8nPRkC93aMLi7NudQ12Gq_cX77MvjZCCj6q0NFXmL6fPUAKRIQQiFm0JfQ/exec';
+
+// ── Generate reference number ─────────────────────────────────────────────
+function generateRef() {
+  const now = new Date();
+  const yy  = String(now.getFullYear()).slice(2);
+  const mm  = String(now.getMonth() + 1).padStart(2, '0');
+  const dd  = String(now.getDate()).padStart(2, '0');
+  const rnd = Math.floor(1000 + Math.random() * 9000);
+  return `REF-${yy}${mm}${dd}-${rnd}`;
+}
+
+// ── Set today's date in header ────────────────────────────────────────────
+const ref = generateRef();
+
+// 1. Used getElementById
+document.getElementById('refNumber').textContent = ref;
+document.getElementById('headerDate').textContent = new Date().toLocaleDateString('en-US', {
+  year: 'numeric', month: 'long', day: 'numeric'
+});
+
+// ── Shipment type toggle ──────────────────────────────────────────────────
+function setType(type) {
+  // 2. Used getElementsByName (Returns a collection, we grab the first one [0])
+  document.getElementsByName('shipmentType')[0].value = type;
+  
+  // 3. Used getElementsByClassName (Returns a collection, we grab [0])
+  document.getElementsByClassName('btn-import')[0].classList.toggle('active', type === 'Import');
+  document.getElementsByClassName('btn-export')[0].classList.toggle('active', type === 'Export');
+}
+
+// ── Volumetric weight calculator ──────────────────────────────────────────
+// Formula: (L × W × H) / 5000
+['length', 'width', 'height'].forEach(function(id) {
+  document.getElementById(id).addEventListener('input', calcVolWeight);
+});
+
+function calcVolWeight() {
+  const l = parseFloat(document.getElementById('length').value);
+  const w = parseFloat(document.getElementById('width').value);
+  const h = parseFloat(document.getElementById('height').value);
+
+  if (!isNaN(l) && !isNaN(w) && !isNaN(h) && l > 0 && w > 0 && h > 0) {
+    const vol = ((l * w * h) / 5000).toFixed(2);
+    document.getElementById('volWeight').textContent = vol + ' kg';
+  } else {
+    document.getElementById('volWeight').textContent = '—';
+  }
+}
+
+// ── Form submit ───────────────────────────────────────────────────────────
+// 4. Used getElementsByTagName (Grabs the first <form> tag on the page)
+document.getElementsByTagName('form')[0].addEventListener('submit', function(e) {
+  e.preventDefault();
+
+  const data = {
+    refNumber:       ref,
+    shipmentType:    document.getElementsByName('shipmentType')[0].value,
+    senderName:      document.getElementById('senderName').value.trim(),
+    senderAddress:   document.getElementById('senderAddress').value.trim(),
+    senderCountry:   document.getElementById('senderCountry').value.trim(),
+    senderContact:   document.getElementById('senderContact').value.trim(),
+    receiverName:    document.getElementById('receiverName').value.trim(),
+    receiverAddress: document.getElementById('receiverAddress').value.trim(),
+    receiverCountry: document.getElementById('receiverCountry').value.trim(),
+    receiverContact: document.getElementById('receiverContact').value.trim(),
+    description:     document.getElementById('description').value.trim(),
+    weight:          parseFloat(document.getElementById('weight').value),
+    length:          parseFloat(document.getElementById('length').value),
+    width:           parseFloat(document.getElementById('width').value),
+    height:          parseFloat(document.getElementById('height').value),
+    volWeight:       document.getElementById('volWeight').textContent,
+    declaredValue:   parseFloat(document.getElementById('declaredValue').value)
+  };
+
+  // Validation
+  if (!data.senderName || !data.senderAddress || !data.senderCountry ||
+      !data.receiverName || !data.receiverAddress || !data.receiverCountry ||
+      !data.description || isNaN(data.weight) || isNaN(data.length) ||
+      isNaN(data.width) || isNaN(data.height) || isNaN(data.declaredValue)) {
+    showStatus('Please fill out all fields before submitting.', 'error');
+    return;
+  }
+
+  showResult(data);
+  syncToSheet(data);
+});
+
+// ── Show result card ──────────────────────────────────────────────────────
+function showResult(data) {
+  document.getElementById('resultRef').textContent      = data.refNumber;
+  document.getElementById('resultTitle').textContent    = data.description;
+  document.getElementById('resultSub').textContent      = data.shipmentType + ' · Declared value: $' + data.declaredValue.toFixed(2);
+  document.getElementById('rType').textContent          = data.shipmentType;
+  document.getElementById('rWeight').textContent        = data.weight + ' kg';
+  document.getElementById('rDims').textContent          = data.length + '×' + data.width + '×' + data.height + ' cm';
+  document.getElementById('rVol').textContent           = data.volWeight;
+  document.getElementById('rValue').textContent         = '$' + data.declaredValue.toFixed(2);
+  document.getElementById('rSenderName').textContent    = data.senderName;
+  document.getElementById('rSenderAddr').textContent    = data.senderAddress;
+  document.getElementById('rSenderCountry').textContent = data.senderCountry;
+  document.getElementById('rReceiverName').textContent  = data.receiverName;
+  document.getElementById('rReceiverAddr').textContent  = data.receiverAddress;
+  document.getElementById('rReceiverCountry').textContent = data.receiverCountry;
+
+  // 3. Used getElementsByClassName here too
+  const card = document.getElementsByClassName('result-card')[0];
+  card.classList.add('visible');
+  card.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+// ── Sync to Google Sheet via FormData POST ────────────────────────────────
+function syncToSheet(data) {
+  // 4. Used getElementsByTagName (Grabs the second form, which is your sheet sync template form)
+  const form = document.getElementsByTagName('form')[1];
+  Object.keys(data).forEach(function(key) {
+    if (form[key]) form[key].value = data[key];
+  });
+
+  showStatus('Saving to Google Sheet…', 'info');
+
+  fetch(SCRIPT_URL, { method: 'POST', body: new FormData(form) })
+    .then(function(r) { return r.text(); })
+    .then(function()  { showStatus('Declaration saved to Google Sheet.', 'success'); })
+    .catch(function() { showStatus('Saved locally but sheet sync failed. Check your network.', 'error'); });
+}
+
+// ── Status bar ────────────────────────────────────────────────────────────
+function showStatus(msg, type) {
+  // 3. Used getElementsByClassName
+  const el = document.getElementsByClassName('status-msg')[0];
+  el.textContent = msg;
+  el.className = 'status-msg ' + type;
+  clearTimeout(el._t);
+  el._t = setTimeout(function() { el.className = 'status-msg'; }, 5000);
+}
+
+// ── Reset form ────────────────────────────────────────────────────────────
+function resetForm() {
+  // 4. Used getElementsByTagName
+  document.getElementsByTagName('form')[0].reset();
+  document.getElementById('volWeight').textContent = '—';
+  
+  // 3. Used getElementsByClassName
+  document.getElementsByClassName('result-card')[0].classList.remove('visible');
+  document.getElementsByClassName('status-msg')[0].className = 'status-msg';
+
+  // Generate a new reference number
+  const newRef = generateRef();
+  document.getElementById('refNumber').textContent = newRef;
+
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
